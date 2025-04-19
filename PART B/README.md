@@ -1,40 +1,57 @@
-Dataset
-Same as Part A (iNaturalist 12K - 10 classes)
+# 🧠 Part B: Fine-Tuning Pretrained Models on iNaturalist 12K
 
-Preprocessing
-Image resized to 224x224
+## 📁 Dataset
 
-Normalized using ImageNet mean & std
+- **Source**: iNaturalist 12K (10 class subset)
+- **Structure**:
+  - Same as Part A (`train/` and `val/` folders)
 
-Models Used
-Pretrained Backbones: ResNet50
+## 🧾 Code Overview
 
-Custom classifier head adapted for 10-class output
+The code fine-tunes a **pretrained ResNet50** from `torchvision.models` using PyTorch.
 
-Fine-Tuning Strategies Explored
-Freezing all layers except the final fully connected layer
+- **Model**: Loads ImageNet-pretrained ResNet50.
+- **Strategy**: Freezes all layers except `layer4` and `fc` to fine-tune only the deeper, task-specific layers.
+- **Classifier Replacement**: Replaces the original `fc` layer with a new one for 10 output classes.
+- **Data Augmentation**: Applied the same augmentations as Part A.
+- **Training Loop**: Includes AMP and scheduler (StepLR).
+- **Logging**: Training/validation/test performance logged via wandb.
+- **Model Saving**: Saves fine-tuned weights to `resnet50_finetuned.pth`.
 
-Freezing layers up to layer4 and fine-tuning the rest
+## 🛠️ Techniques Used
 
-Fine-tuning the entire model with different learning rates
+- Fine-tuning pretrained ResNet50
+- Partial unfreezing (`layer4` + `fc`)
+- Label smoothing
+- Data augmentation
+- Gradient clipping
+- Automatic Mixed Precision (AMP)
+- StepLR learning rate scheduler
+- [wandb](https://wandb.ai) for logging
 
-Final Strategy Used
-Freezing up to layer4 and fine-tuning layer4 + fc layers in ResNet50, based on the balance of adaptability, training cost, and validation performance.
+## ⚙️ Fine-Tuning Strategy
 
-Results
-Achieved significantly higher accuracy compared to training from scratch.
+- **Strategy Used**: *Freezing Layers Up to a Certain Layer (e.g., up to `layer4`)*
+- **Why?**
+  - Keeps general low-level features from pretrained backbone.
+  - Fine-tunes higher layers to adapt to the iNaturalist domain.
+  - Efficient in terms of time and avoids catastrophic forgetting.
+  - Great balance of accuracy and generalization.
 
-Improved generalization and convergence speed.
+## ✅ Final Performance
 
-Test Accuracy: ~ 78%
+- **Validation Accuracy**: ~76%
+- **Test Accuracy**: ~78%
+- **Checkpoint Saved**: `resnet50_finetuned.pth`
 
-Tools & Features
-WandB logging for metrics, losses, and model configs
+## 🔄 Comparison with Part A
 
-Automatic Mixed Precision
+| Aspect                  | Part A (Scratch) | Part B (Fine-Tune) |
+|------------------------|------------------|---------------------|
+| Validation Accuracy    | ~36%             | ~76%                |
+| Test Accuracy          | ~37%             | ~78%                |
+| Training Time          | Higher           | Lower               |
+| Generalization         | Lower            | Better              |
+| Uses Pretrained Model? | ❌               | ✅                  |
 
-Label smoothing
 
-StepLR scheduler
-
-Optimizer: Adam
