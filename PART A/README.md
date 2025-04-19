@@ -5,7 +5,7 @@
 - **Source**: iNaturalist 12K (10 class subset)
 - **Structure**:
   - `train/`: Training images organized into 10 class folders.
-  - `val/`: Validation images with the same class structure.
+  - `val/`: Validation images with the same class structure.(USED AS TEST DATA).
 
 ## 🧾 Code Overview
 
